@@ -109,6 +109,22 @@ String status;
     
     
     
+     public void closeConnection(Connection conn, ResultSet rs,PreparedStatement ps )  {
+         
+         
+        try {
+            if(!conn.equals(null))
+                conn.close();
+            if(!rs.equals(null))
+                rs.close();
+            if(!ps.equals(null))
+                ps.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Kuldeeep.class.getName()).log(Level.SEVERE, null, ex);
+        }
+         
+     }
+    
     
     
     
@@ -129,13 +145,18 @@ String status;
          
          
         try {
-            stm = conn.createStatement();
+            
+            
+                   String sql;
+                sql = "SELECT COUNTRY_ID,COUNTRY_NAME,REGION_ID FROM COUNTRIES";
+    
+             PreparedStatement stm = conn.prepareStatement(sql);
+                
+
+                ResultSet rs=stm.executeQuery();
            
             
-              String sql;
-    sql = "SELECT COUNTRY_ID,COUNTRY_NAME,REGION_ID FROM COUNTRIES";
-    ResultSet rs = stm.executeQuery(sql);
-    
+       
     
     while(rs.next()){
 //Retrieve by column name
@@ -156,10 +177,21 @@ String status;
      mainObject.accumulate("status", "ok");
         mainObject.accumulate("Timestamp", echoTime);
     mainObject.accumulate("Countries", mainArray);
+    
+    
             
-        } catch (SQLException ex) {
-            Logger.getLogger(Kuldeeep.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            //Logger.getLogger(Kuldeeep.class.getName()).log(Level.SEVERE, null, ex);
+            status=ex.getMessage();
         }
+        
+       //  if(mainObject.equals("{}"))
+        {
+                   
+             mainObject.accumulate("Status", "error");
+        mainObject.accumulate("Timestamp", echoTime);
+        mainObject.accumulate("Msg",  status);
+       }
  
          return mainObject.toString();
          
@@ -215,7 +247,7 @@ String status;
     }
             
         } catch (Exception ex) {
-            status=ex.getMessage();
+            status=" - "+ex.getMessage();
         }
  
         if(mainObject.toString().equals("{}"))
@@ -359,7 +391,7 @@ String status;
     public String deleteCountry(@PathParam("con_id") String con_id) {
         
         
-        
+        int qRes=0;
         Connection conn = null;
               conn=  getConnection(conn);
          
@@ -382,9 +414,19 @@ String status;
 
     
             
-        } catch (SQLException ex) {
-            Logger.getLogger(Kuldeeep.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            //Logger.getLogger(Kuldeeep.class.getName()).log(Level.SEVERE, null, ex);
+              status=ex.getMessage();
         }
+        
+         
+         if(qRes!=1)
+        {
+        mainObject.accumulate("Status", "error");
+        mainObject.accumulate("Timestamp", echoTime);
+        mainObject.accumulate("Msg",  status);
+       }
+        
  
          return mainObject.toString();
          
@@ -426,8 +468,5 @@ String status;
      * PUT method for updating or creating an instance of Kuldeeep
      * @param content representation for the resource
      */
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    public void putJson(String content) {
-    }
+   
 }
