@@ -127,7 +127,7 @@ public class Anju {
             mainObject.clear();
         mainObject.accumulate("Status", "error");
         mainObject.accumulate("Timestamp", echoTime);
-        mainObject.accumulate("Msg",  msg);
+        mainObject.accumulate("Msg", "Not Inserted - "+ msg);
        }
          
          return mainObject.toString();
@@ -138,6 +138,123 @@ public class Anju {
     
     
     
+    
+     @GET
+           @Path("updateJob&{job_id}&{job_title}&{min_sal}&{max_sal}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String updateJob(@PathParam("job_id") String job_id, @PathParam("job_title") String job_title, @PathParam("min_sal") int min_sal, @PathParam("max_sal") int max_sal) {
+        
+        int qRes=0;
+        
+        Connection conn = null;
+              conn=  kul.getConnection(conn);
+         
+         
+         
+        try {           
+            
+              String sql;
+    sql = "UPDATE JOBS set JOB_TITLE=?,MIN_SALARY=?,MAX_SALARY=? where JOB_ID=?";
+    
+   //jjjjj
+   
+      PreparedStatement stm = conn.prepareStatement(sql);
+                stm.setString(1,job_title);
+                stm.setInt(2, min_sal);
+                stm.setInt(3, max_sal);
+                stm.setString(4,job_id);
+                
+
+                 qRes=stm.executeUpdate();
+                  if(qRes==1)
+                  {
+                       mainObject.accumulate("status", "ok");
+                    mainObject.accumulate("Timestamp", echoTime);
+                  mainObject.accumulate("Msg", "Sucessfully Updated");
+                  }
+                 
+                  kul.closeConnection(conn,null,stm);
+                  
+                  
+        } catch (SQLException ex) {
+            msg=ex.getMessage();
+        }
+        
+        
+       
+         if(qRes!=1)
+        {
+              if(msg==null)
+               msg="Record not found";
+        mainObject.accumulate("Status", "error");
+        mainObject.accumulate("Timestamp", echoTime);
+        mainObject.accumulate("Msg",  "Not Updated - "+msg);
+       }
+ 
+         return mainObject.toString();
+         
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    @GET
+            @Path("deleteJob&{job_id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String deleteJob(@PathParam("job_id") String con_id) {
+        
+        
+        int qRes=0;
+        Connection conn = null;
+              conn=  kul.getConnection(conn);
+         
+        try {           
+            
+              String sql;
+    sql = "DELETE from JOBS where JOB_ID=?";
+    
+
+   
+      PreparedStatement stm = conn.prepareStatement(sql);
+                stm.setString(1,con_id);
+             
+                
+
+                  qRes=stm.executeUpdate();
+                  if(qRes==1)
+                  {
+                       mainObject.accumulate("status", "ok");
+                    mainObject.accumulate("Timestamp", echoTime);
+                  mainObject.accumulate("Msg", "Sucessfully Deleted");
+                  }
+                 
+                  kul.closeConnection(conn,null,stm);
+                  
+
+    
+            
+        } catch (Exception ex) {
+              msg=ex.getMessage();
+        }
+        
+         
+         if(qRes!=1)
+        {
+            if(msg==null)
+               msg="Record not found";
+        mainObject.accumulate("Status", "error");
+        mainObject.accumulate("Timestamp", echoTime);
+        mainObject.accumulate("Msg",  "Not Deleted - "+msg);
+       }
+        
+ 
+         return mainObject.toString();
+         
+    }
     
     
     
@@ -202,6 +319,8 @@ public class Anju {
         if(mainObject.get("Jobs").toString().equals("[]"))
         {
             mainObject.clear();
+              if(msg==null)
+               msg="Record not found";
                    
              mainObject.accumulate("Status", "error");
         mainObject.accumulate("Timestamp", echoTime);

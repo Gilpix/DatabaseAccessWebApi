@@ -5,6 +5,7 @@
  */
 package kamal;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -47,7 +48,7 @@ static final String USER = "hr";
 static final String PASS = "cegepgim";
 Statement stm=null;
 
-String status; 
+String msg; 
 
 
  Date today=new Date();
@@ -113,12 +114,12 @@ String status;
          
          
         try {
-            if(!conn.equals(null))
-                conn.close();
-            if(!rs.equals(null))
-                rs.close();
-            if(!ps.equals(null))
-                ps.close();
+                        if (rs != null)
+                            rs.close();
+                        if (stm != null)
+                            stm.close();
+                        if (conn != null)
+                            conn.close();
         } catch (SQLException ex) {
             Logger.getLogger(Kuldeeep.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -182,7 +183,7 @@ String status;
             
         } catch (Exception ex) {
             //Logger.getLogger(Kuldeeep.class.getName()).log(Level.SEVERE, null, ex);
-            status=ex.getMessage();
+            msg=ex.getMessage();
         }
         
         if(mainObject.get("Countries").toString().equals("[]"))
@@ -191,7 +192,7 @@ String status;
                    
              mainObject.accumulate("Status", "error");
         mainObject.accumulate("Timestamp", echoTime);
-        mainObject.accumulate("Msg",  status);
+        mainObject.accumulate("Msg",  msg);
        }
        
  
@@ -247,17 +248,25 @@ String status;
           mainObject.accumulate("REGION_ID", r_id);
      
     }
-            
-        } catch (Exception ex) {
-            status=" - "+ex.getMessage();
+
         }
+        catch (SQLException ex) {
+                       msg=ex.getMessage();
+                      
+                   } 
+      
+        catch (Exception ex) {
+              msg=ex.getMessage();
+          }
  
         if(mainObject.toString().equals("{}"))
         {
+              if(msg==null)
+               msg="Record not found";
                    
              mainObject.accumulate("Status", "error");
         mainObject.accumulate("Timestamp", echoTime);
-        mainObject.accumulate("Msg",  status);
+        mainObject.accumulate("Msg",  msg);
        }
         
          return mainObject.toString();
@@ -295,7 +304,6 @@ String status;
               String sql;
     sql = "INSERT INTO COUNTRIES VALUES(?,?,?)";
     
-   //jjjjj
    
       PreparedStatement stm = conn.prepareStatement(sql);
                 stm.setString(1,con_id);
@@ -303,25 +311,27 @@ String status;
                 stm.setInt(3, reg_id);
 
                   qRes=stm.executeUpdate();
+                   if(qRes==1)
+                  {
                    mainObject.accumulate("status", "ok");
-        mainObject.accumulate("Timestamp", echoTime);
+                    mainObject.accumulate("Timestamp", echoTime);
                   mainObject.accumulate("Msg", "Sucessfully Inserted");
+                  }
 
     
+                  closeConnection(conn,null,stm);
             
         } catch (SQLException ex) {
-            status=ex.getMessage();
+            msg=ex.getMessage();
         }
         
          if(qRes!=1)
         {
         mainObject.accumulate("Status", "error");
         mainObject.accumulate("Timestamp", echoTime);
-        mainObject.accumulate("Msg",  status);
+        mainObject.accumulate("Msg", "Not Insterted " +msg);
        }
          
-       
- 
          return mainObject.toString();
          
     }
@@ -356,22 +366,33 @@ String status;
                 
 
                  qRes=stm.executeUpdate();
+                 if(qRes==1)
+                  {
+                       mainObject.accumulate("status", "ok");
+                    mainObject.accumulate("Timestamp", echoTime);
+                  mainObject.accumulate("Msg", "Sucessfully Updated");
+                  }
+                 
+                  closeConnection(conn,null,stm);
+                  
 
     
             
         } catch (SQLException ex) {
-            status=ex.getMessage();
+            msg=ex.getMessage();
         }
         
         
        
-         if(qRes!=1)
+          if(qRes!=1)
         {
+              if(msg==null)
+               msg="Record not found";
         mainObject.accumulate("Status", "error");
         mainObject.accumulate("Timestamp", echoTime);
-        mainObject.accumulate("Msg",  status);
+        mainObject.accumulate("Msg",  "Not Updated - "+msg);
        }
- 
+          
          return mainObject.toString();
          
     }
@@ -404,29 +425,38 @@ String status;
               String sql;
     sql = "DELETE from COUNTRIES where COUNTRY_ID=?";
     
-   //jjjjj
+
    
       PreparedStatement stm = conn.prepareStatement(sql);
                 stm.setString(1,con_id);
              
                 
 
-                  int a=stm.executeUpdate();
-                  mainObject.accumulate("stat", a);
+                  qRes=stm.executeUpdate();
+                  if(qRes==1)
+                  {
+                       mainObject.accumulate("status", "ok");
+                    mainObject.accumulate("Timestamp", echoTime);
+                  mainObject.accumulate("Msg", "Sucessfully Deleted");
+                  }
+                 
+                  closeConnection(conn,null,stm);
+                  
 
     
             
         } catch (Exception ex) {
-            //Logger.getLogger(Kuldeeep.class.getName()).log(Level.SEVERE, null, ex);
-              status=ex.getMessage();
+              msg=ex.getMessage();
         }
         
          
          if(qRes!=1)
         {
+            if(msg==null)
+               msg="Record not found";
         mainObject.accumulate("Status", "error");
         mainObject.accumulate("Timestamp", echoTime);
-        mainObject.accumulate("Msg",  status);
+        mainObject.accumulate("Msg",  "Not Deleted - "+msg);
        }
         
  
