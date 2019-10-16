@@ -82,6 +82,73 @@ public class Anju {
    
     
     
+    
+    
+    
+    
+         @GET
+            @Path("insertJob&{job_id}&{job_title}&{min_sal}&{max_sal}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String insertJob(@PathParam("job_id") String job_id, @PathParam("job_title") String job_title, @PathParam("min_sal") int min_sal, @PathParam("max_sal") int max_sal) {
+        
+        Connection conn = null;
+              conn=  kul.getConnection(conn);
+              int qRes=0;
+         
+        try {           
+            
+              String sql;
+    sql = "INSERT INTO JOBS VALUES(?,?,?,?)";
+    
+   
+      PreparedStatement stm = conn.prepareStatement(sql);
+                stm.setString(1,job_id);
+                stm.setString(2,job_title);
+                stm.setInt(3, min_sal);
+                stm.setInt(4, max_sal);
+
+                  qRes=stm.executeUpdate();
+                  if(qRes==1)
+                  {
+                   mainObject.accumulate("status", "ok");
+                    mainObject.accumulate("Timestamp", echoTime);
+                  mainObject.accumulate("Msg", "Sucessfully Inserted");
+                  }
+
+    
+                  kul.closeConnection(conn,null,stm);
+            
+        } catch (SQLException ex) {
+            msg=ex.getMessage();
+        }
+        
+         if(qRes!=1)
+        {
+            mainObject.clear();
+        mainObject.accumulate("Status", "error");
+        mainObject.accumulate("Timestamp", echoTime);
+        mainObject.accumulate("Msg",  msg);
+       }
+         
+         return mainObject.toString();
+         
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
       @GET
             @Path("getJobsList")
     @Produces(MediaType.APPLICATION_JSON)
@@ -213,6 +280,17 @@ public class Anju {
          return singleJob.toString();
          
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
