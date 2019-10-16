@@ -39,8 +39,8 @@ public class Kuldeeep {
     
     
     
-    // JDBC driver name and database URL
- String JDBC_DRIVER = "oracle.jdbc.OracleDriver";
+// JDBC driver name and database URL
+String JDBC_DRIVER = "oracle.jdbc.OracleDriver";
 static final String DB_URL = "jdbc:oracle:thin:@localhost:1521:XE";
 // Database credentials
 static final String USER = "hr";
@@ -173,25 +173,27 @@ String status;
         singleCountry.clear();
 
     }
-    
      mainObject.accumulate("status", "ok");
         mainObject.accumulate("Timestamp", echoTime);
     mainObject.accumulate("Countries", mainArray);
     
     
+     closeConnection(conn,rs,stm);
             
         } catch (Exception ex) {
             //Logger.getLogger(Kuldeeep.class.getName()).log(Level.SEVERE, null, ex);
             status=ex.getMessage();
         }
         
-       //  if(mainObject.equals("{}"))
+        if(mainObject.get("Countries").toString().equals("[]"))
         {
+            mainObject.clear();
                    
              mainObject.accumulate("Status", "error");
         mainObject.accumulate("Timestamp", echoTime);
         mainObject.accumulate("Msg",  status);
        }
+       
  
          return mainObject.toString();
          
