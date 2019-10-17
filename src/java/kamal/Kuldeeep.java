@@ -55,6 +55,7 @@ String msg;
         long echoTime=today.getTime();
  JSONArray mainArray=new JSONArray();
         JSONObject mainObject = new JSONObject();
+        JSONObject mainMsg = new JSONObject();
     
     
     
@@ -172,7 +173,7 @@ String msg;
           singleCountry.accumulate("REGION_ID", r_id);
         mainArray.add(singleCountry);
         singleCountry.clear();
-
+ 
     }
      mainObject.accumulate("status", "ok");
         mainObject.accumulate("Timestamp", echoTime);
@@ -181,19 +182,24 @@ String msg;
     
      closeConnection(conn,rs,stm);
             
-        } catch (Exception ex) {
-            //Logger.getLogger(Kuldeeep.class.getName()).log(Level.SEVERE, null, ex);
-            msg=ex.getMessage();
+        }catch (SQLException e) {
+            mainMsg.accumulate("message", e.getMessage());
+        }
+        catch (Exception ex) {
+            mainMsg.accumulate("message", ex.getMessage());
         }
         
-        if(mainObject.get("Countries").toString().equals("[]"))
+        if(!mainMsg.isEmpty() ||mainArray.isEmpty())
         {
-            mainObject.clear();
+        mainObject.clear();
+        if(mainArray.isEmpty() &&mainMsg.isEmpty())
+            mainMsg.accumulate("message", "Main array is empty");
                    
-             mainObject.accumulate("Status", "error");
+        mainObject.accumulate("Status", "error");
         mainObject.accumulate("Timestamp", echoTime);
-        mainObject.accumulate("Msg",  msg);
+        mainObject.accumulate("Msg",  mainMsg);
        }
+        mainMsg.clear();
        
  
          return mainObject.toString();
@@ -241,6 +247,7 @@ String msg;
     String cName = rs.getString("COUNTRY_NAME");
     int r_id = rs.getInt("REGION_ID");
 //Display values
+
  mainObject.accumulate("status", "ok");
         mainObject.accumulate("Timestamp", echoTime);
      mainObject.accumulate("COUNTRY_ID", cn_id);
@@ -251,10 +258,8 @@ String msg;
 
         }
         catch (SQLException ex) {
-                       msg=ex.getMessage();
-                      
+                       msg=ex.getMessage();  
                    } 
-      
         catch (Exception ex) {
               msg=ex.getMessage();
           }
@@ -329,7 +334,7 @@ String msg;
         {
         mainObject.accumulate("Status", "error");
         mainObject.accumulate("Timestamp", echoTime);
-        mainObject.accumulate("Msg", "Not Insterted " +msg);
+        mainObject.accumulate("Msg", "Not Insterted - " +msg);
        }
          
          return mainObject.toString();

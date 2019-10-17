@@ -22,7 +22,7 @@ import net.sf.json.JSONObject;
 /**
  * REST Web Service
  *
- * @author kulartist
+ * @author kamaldeep
  */
 @Path("regions")
 public class KamalResource {
@@ -104,18 +104,21 @@ public class KamalResource {
      kul.closeConnection(conn,rs,stm);
             
         } catch (Exception ex) {
-            //Logger.getLogger(Kuldeeep.class.getName()).log(Level.SEVERE, null, ex);
             msg=ex.getMessage();
         }
         
-        if(mainObject.get("Regions").toString().equals("[]"))
+       if(mainArray.isEmpty()||msg!=null)
         {
             mainObject.clear();
+              
+               if(mainArray.isEmpty() && msg==null)
+                  msg="Main array is empty";
                    
              mainObject.accumulate("Status", "error");
         mainObject.accumulate("Timestamp", echoTime);
         mainObject.accumulate("Msg",  msg);
        }
+       
        
 
          return mainObject.toString();
@@ -129,7 +132,7 @@ public class KamalResource {
       @GET
             @Path("getSingleRegion&{region_id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getSingleJob(@PathParam("region_id") String r_id) {
+    public String getSingleJob(@PathParam("region_id") int r_id) {
 
 
         JSONObject singleRegion =new JSONObject();
@@ -150,13 +153,16 @@ public class KamalResource {
 
 
       PreparedStatement stm = conn.prepareStatement(sql);
-                stm.setString(1,r_id);
+                stm.setInt(1,r_id);
 
                 ResultSet rs=stm.executeQuery();
 
                 while(rs.next()) {
     int  region_id = rs.getInt("REGION_ID");
     String region_Title = rs.getString("REGION_NAME");
+    
+    singleRegion.accumulate("status", "ok");
+        singleRegion.accumulate("Timestamp", echoTime);
    
  singleRegion.accumulate("REGION_ID", region_id);
         singleRegion.accumulate("REGION_NAME", region_Title);
@@ -185,6 +191,11 @@ public class KamalResource {
          return singleRegion.toString();
 
     }
+    
+    
+    
+    
+    
 
      @GET
             @Path("insertRegion&{region_id}&{region_name}")
@@ -227,7 +238,7 @@ public class KamalResource {
             mainObject.clear();
         mainObject.accumulate("Status", "error");
         mainObject.accumulate("Timestamp", echoTime);
-        mainObject.accumulate("Msg",  msg);
+        mainObject.accumulate("Msg",  "Not inserted - "+msg);
        }
 
          return mainObject.toString();

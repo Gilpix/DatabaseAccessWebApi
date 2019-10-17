@@ -25,7 +25,7 @@ import net.sf.json.JSONObject;
 /**
  * REST Web Service
  *
- * @author kulartist
+ * @author anju
  */
 @Path("jobs")
 public class Anju {
@@ -34,7 +34,7 @@ public class Anju {
      
  String msg; 
  Date today=new Date();
- long echoTime=today.getTime();
+ long timeStamp=today.getTime();
  JSONArray mainArray=new JSONArray();
  JSONObject mainObject = new JSONObject();
  
@@ -111,7 +111,7 @@ public class Anju {
                   if(qRes==1)
                   {
                    mainObject.accumulate("status", "ok");
-                    mainObject.accumulate("Timestamp", echoTime);
+                    mainObject.accumulate("Timestamp", timeStamp);
                   mainObject.accumulate("Msg", "Sucessfully Inserted");
                   }
 
@@ -126,13 +126,17 @@ public class Anju {
         {
             mainObject.clear();
         mainObject.accumulate("Status", "error");
-        mainObject.accumulate("Timestamp", echoTime);
+        mainObject.accumulate("Timestamp", timeStamp);
         mainObject.accumulate("Msg", "Not Inserted - "+ msg);
        }
          
          return mainObject.toString();
          
     }
+    
+    
+    
+    
     
     
     
@@ -156,7 +160,6 @@ public class Anju {
               String sql;
     sql = "UPDATE JOBS set JOB_TITLE=?,MIN_SALARY=?,MAX_SALARY=? where JOB_ID=?";
     
-   //jjjjj
    
       PreparedStatement stm = conn.prepareStatement(sql);
                 stm.setString(1,job_title);
@@ -169,7 +172,7 @@ public class Anju {
                   if(qRes==1)
                   {
                        mainObject.accumulate("status", "ok");
-                    mainObject.accumulate("Timestamp", echoTime);
+                    mainObject.accumulate("Timestamp", timeStamp);
                   mainObject.accumulate("Msg", "Sucessfully Updated");
                   }
                  
@@ -187,13 +190,17 @@ public class Anju {
               if(msg==null)
                msg="Record not found";
         mainObject.accumulate("Status", "error");
-        mainObject.accumulate("Timestamp", echoTime);
+        mainObject.accumulate("Timestamp", timeStamp);
         mainObject.accumulate("Msg",  "Not Updated - "+msg);
        }
  
          return mainObject.toString();
          
     }
+    
+    
+    
+    
     
     
     
@@ -228,7 +235,7 @@ public class Anju {
                   if(qRes==1)
                   {
                        mainObject.accumulate("status", "ok");
-                    mainObject.accumulate("Timestamp", echoTime);
+                    mainObject.accumulate("Timestamp", timeStamp);
                   mainObject.accumulate("Msg", "Sucessfully Deleted");
                   }
                  
@@ -247,7 +254,7 @@ public class Anju {
             if(msg==null)
                msg="Record not found";
         mainObject.accumulate("Status", "error");
-        mainObject.accumulate("Timestamp", echoTime);
+        mainObject.accumulate("Timestamp", timeStamp);
         mainObject.accumulate("Msg",  "Not Deleted - "+msg);
        }
         
@@ -255,6 +262,8 @@ public class Anju {
          return mainObject.toString();
          
     }
+    
+    
     
     
     
@@ -305,25 +314,25 @@ public class Anju {
 
     }
      mainObject.accumulate("status", "ok");
-        mainObject.accumulate("Timestamp", echoTime);
+        mainObject.accumulate("Timestamp", timeStamp);
     mainObject.accumulate("Jobs", mainArray);
     
     
      kul.closeConnection(conn,rs,stm);
             
         } catch (Exception ex) {
-            //Logger.getLogger(Kuldeeep.class.getName()).log(Level.SEVERE, null, ex);
             msg=ex.getMessage();
         }
         
-        if(mainObject.get("Jobs").toString().equals("[]"))
+        if(mainArray.isEmpty()||msg!=null)
         {
             mainObject.clear();
-              if(msg==null)
-               msg="Record not found";
+              
+               if(mainArray.isEmpty() && msg==null)
+                  msg="Main array is empty";
                    
              mainObject.accumulate("Status", "error");
-        mainObject.accumulate("Timestamp", echoTime);
+        mainObject.accumulate("Timestamp", timeStamp);
         mainObject.accumulate("Msg",  msg);
        }
        
@@ -331,6 +340,10 @@ public class Anju {
          return mainObject.toString();
          
     }
+    
+    
+    
+    
     
     
     
@@ -371,7 +384,9 @@ public class Anju {
     int min_sal = rs.getInt("MIN_SALARY");
      int max_sal = rs.getInt("MAX_SALARY");
 //Display values
- singleJob.accumulate("JOB_ID", j_id);
+    singleJob.accumulate("status", "ok");
+        singleJob.accumulate("Timestamp", timeStamp);
+        singleJob.accumulate("JOB_ID", j_id);
         singleJob.accumulate("JOB_TITLE", jTitle);
           singleJob.accumulate("MIN_SALARY", min_sal);
           singleJob.accumulate("MAX_SALARY", max_sal);
@@ -392,7 +407,7 @@ public class Anju {
                msg="Record not found";
                    
              singleJob.accumulate("Status", "error");
-        singleJob.accumulate("Timestamp", echoTime);
+        singleJob.accumulate("Timestamp", timeStamp);
         singleJob.accumulate("Msg",  msg);
        }
         
