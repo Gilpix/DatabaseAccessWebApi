@@ -392,6 +392,8 @@ public class Anju {
           singleJob.accumulate("MAX_SALARY", max_sal);
      
     }
+                     kul.closeConnection(conn,rs,stm);
+
 
         }
         catch (SQLException ex) {

@@ -256,6 +256,8 @@ String msg;
      
     }
 
+                     closeConnection(conn,rs,stm);
+
         }
         catch (SQLException ex) {
                        msg=ex.getMessage();  

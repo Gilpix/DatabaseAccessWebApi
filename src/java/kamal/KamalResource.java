@@ -169,6 +169,8 @@ public class KamalResource {
      
 
     }
+                     kul.closeConnection(conn,rs,stm);
+
 
         }
         catch (SQLException ex) {
